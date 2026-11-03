@@ -1,0 +1,88 @@
+# PlacementPulse local stack.
+#
+# NOTE: This file was NOT run locally in the build environment because the
+# Docker daemon is unavailable there. It is configuration, not a verified
+# run. Before trusting it, run `docker compose up --build` on a machine
+# with Docker and confirm each service becomes healthy.
+#
+# Services: Rails API, Sidekiq worker, PostgreSQL 16, Redis 7, Vite frontend.
+# The api/worker services mount ./backend into a Ruby 3.2 image rather than
+# relying on a backend Dockerfile (none exists in this repository yet).
+# Secrets come from the environment / a local .env file (see .env.example);
+# no real credential is written in this file.
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: placementpulse
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-placementpulse}
+      POSTGRES_DB: placementpulse_development
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U placementpulse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    image: ruby:3.2
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    environment:
+      DATABASE_URL: postgres://placementpulse:${POSTGRES_PASSWORD:-placementpulse}@postgres:5432/placementpulse_development
+      REDIS_URL: redis://redis:6379/0
+      FRONTEND_ORIGIN: http://localhost:5173
+      MAILER_FROM: ${MAILER_FROM:-noreply@example.com}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    command: sh -c "bundle install && bundle exec rails db:migrate && bundle exec rails server -b 0.0.0.0 -p 3000"
+
+  worker:
+    image: ruby:3.2
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    environment:
+      DATABASE_URL: postgres://placementpulse:${POSTGRES_PASSWORD:-placementpulse}@postgres:5432/placementpulse_development
+      REDIS_URL: redis://redis:6379/0
+      MAILER_FROM: ${MAILER_FROM:-noreply@example.com}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: sh -c "bundle install && bundle exec sidekiq -C config/sidekiq.yml"
+
+  frontend:
+    image: node:24
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    environment:
+      VITE_API_URL: http://localhost:3000
+    ports:
+      - "5173:5173"
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
+
+volumes:
+  pgdata:

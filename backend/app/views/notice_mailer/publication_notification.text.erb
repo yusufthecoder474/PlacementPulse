@@ -1,0 +1,13 @@
+Hello,
+
+A new placement opportunity you are eligible for has been published:
+
+Company: <%= @notice.company %>
+Role: <%= @notice.category %>
+Drive date: <%= @notice.drive_date %>
+Registration deadline: <%= @notice.registration_deadline&.in_time_zone("Asia/Kolkata")&.strftime("%d %b %Y, %I:%M %p %Z") %>
+Registration link: <%= @notice.registration_url %>
+
+Please complete your registration before the deadline.
+
+— PlacementPulse

@@ -1,0 +1,3 @@
+notice_id,field,expected,actual,status
+N01,company,,,
+N01,minimum_cgpa,,,

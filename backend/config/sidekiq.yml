@@ -1,0 +1,4 @@
+# Sidekiq process configuration. Start a worker with: bundle exec sidekiq
+:concurrency: 5
+:queues:
+  - default

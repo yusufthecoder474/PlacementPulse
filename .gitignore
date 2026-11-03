@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Rails
+backend/tmp/
+backend/log/
+backend/storage/
+*.key
+!backend/config/master.key.example
+
+# Frontend build
+frontend/dist/
+frontend/coverage/
+frontend/test-results/
+frontend/playwright-report/
+frontend/playwright/.auth/
+
+# Environment
+.env
+!.env.example
+
+# OS / editor
+.DS_Store
+.idea/
+*.swp

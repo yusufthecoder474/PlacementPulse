@@ -1,0 +1,9 @@
+<p>Hello,</p>
+<p>This is a reminder that registration closes soon for:</p>
+<ul>
+  <li>Company: <%= @notice.company %></li>
+  <li>Role: <%= @notice.category %></li>
+  <li>Registration deadline: <%= @notice.registration_deadline&.in_time_zone("Asia/Kolkata")&.strftime("%d %b %Y, %I:%M %p %Z") %></li>
+</ul>
+<p><a href="<%= @notice.registration_url %>">Complete your registration</a> before the deadline. If you have already registered, please ignore this message.</p>
+<p>— PlacementPulse</p>

@@ -1,0 +1,23 @@
+# PostgreSQL configuration.
+#
+# Local development/test connect over the Unix socket as the operating-system
+# user running Rails, so no username is set here: create a PostgreSQL role
+# matching your OS user (for example `createuser -s $(whoami)`), or set
+# DATABASE_URL to a full connection URL. Never commit a real password here;
+# production reads DATABASE_URL only.
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+development:
+  <<: *default
+  database: placementpulse_development
+
+test:
+  <<: *default
+  database: placementpulse_test
+
+production:
+  <<: *default
+  url: <%= ENV["DATABASE_URL"] %>

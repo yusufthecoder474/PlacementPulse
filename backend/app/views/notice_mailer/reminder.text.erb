@@ -1,0 +1,12 @@
+Hello,
+
+This is a reminder that registration closes soon for:
+
+Company: <%= @notice.company %>
+Role: <%= @notice.category %>
+Registration deadline: <%= @notice.registration_deadline&.in_time_zone("Asia/Kolkata")&.strftime("%d %b %Y, %I:%M %p %Z") %>
+Registration link: <%= @notice.registration_url %>
+
+If you have already registered, please ignore this message.
+
+— PlacementPulse
